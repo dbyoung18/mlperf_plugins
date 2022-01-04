@@ -1,12 +1,14 @@
 #include <torch/library.h>
 #include <plugins.hpp>
 
+#include "lstm.hpp"
 #include "linear.hpp"
 #include "softmax.hpp"
 #include "activation.hpp"
 #include "normalization.hpp"
 
 TORCH_LIBRARY(intel_mlperf, m) {
+  m.def("test_lstm() -> ()", intel_mlperf::test_lstm);
   m.def(
     "linear(Tensor input, Tensor weight, Tensor ? bias, Scalar ? scale, Scalar ? zero) -> Tensor",
     intel_mlperf::linear);
