@@ -8,7 +8,12 @@
 #include "normalization.hpp"
 
 TORCH_LIBRARY(intel_mlperf, m) {
-  m.def("test_lstm() -> ()", intel_mlperf::test_lstm);
+  m.def(
+    "lstm(Tensor input, (Tensor, Tensor) hidden, Tensor[] params, int num_layers, Scalar ? scale) -> Tensor[]",
+    intel_mlperf::lstm);
+  m.def(
+    "lstm_layer(Tensor input, Tensor hx, Tensor cx, Tensor weight_ih, Tensor weight_hh, Tensor bias, Scalar ? scalar) -> Tensor[]",
+    intel_mlperf::lstm_layer);
   m.def(
     "linear(Tensor input, Tensor weight, Tensor ? bias, Scalar ? scale, Scalar ? zero) -> Tensor",
     intel_mlperf::linear);
