@@ -108,6 +108,99 @@ class QuantLinear(nn.Linear):
         return output
 
 
+# class LSTMWeightQuantizer(nn.Module):
+#     def __init__(self):
+#         self.bound = torch.tensor(127., dtype=torch.float32)
+#         pass
+
+#     def _get_amax(self, input):
+#         amax = input.abs().max()
+#         return amax
+
+#     def scale(self, input):
+#         return self.bound / self._get_amax(input)
+
+#     def forward(self, input):
+#         output = round_and_clamp(input*self.scale(input), -self.bound, self.bound)
+#         output = output.type(torch.int8)
+#         return output
+
+
+# class QuantLSTM(nn.LSTM):
+#     """
+#     Quantized version of :obj:`torch.nn.LSTM`. Add quantization parameters same
+#     as pytorch-quantization. A placeholder for quant param initialization
+
+#     Args:
+#     """
+#     def __init__(self, mode, input_size, hidden_size,
+#                  num_layers=1, bias=True, batch_first=False,
+#                  dropout=0, bidirectional=False,
+#                  **kwargs):
+#         super(QuantLSTM, self).__init__()
+#         self.mode = mode
+#         self.input_size = input_size
+#         self.hidden_size = hidden_size
+#         self.num_layers = num_layers
+#         self.bias = bias
+#         self.batch_first = batch_first
+#         self.dropout = dropout
+#         self.dropout_state = {}
+#         self.bidirectional = bidirectional
+#         self.num_directions = 2 if bidirectional else 1
+
+#         gate_size = 4 * hidden_size
+#         self._all_weights = []
+#         for layer in range(self.num_layers):
+#             for direction in range(self.num_directions):
+#                 src_input_size = input_size if layer == 0 else hidden_size * self.num_directions
+#                 weight_ih = Parameter(torch.Tensor(gate_size, src_input_size))
+#                 weight_hh = Parameter(torch.Tensor(gate_size, hidden_size))
+#                 bias_ih = Parameter(torch.Tensor(gate_size))
+#                 bias_hh = Parameter(torch.Tensor(gate_size))
+#                 layer_params = (weight_ih, weight_hh, bias_ih, bias_hh)
+
+#                 suffix = '_reverse' if direction == 1 else ''
+#                 param_names = ['weight_ih_l{}{}', 'weight_hh_l{}{}']
+#                 if bias:
+#                     param_names += ['bias_ih_l{}{}', 'bias_hh_l{}{}']
+#                 param_names = [x.format(layer, suffix) for x in param_names]
+
+#                 for name, param in zip(param_names, layer_params):
+#                     setattr(self, name, param)
+#                 self._all_weights.append(param_names)
+
+#         # init quantizer
+#         self._input_quantizer = TensorQuantizer(True)
+#         self._weight_quantizer = LSTMWeightQuantizer(False)
+
+#     @property
+#     def all_weights(self):
+#         return [[getattr(self, weight) for weight in weights] for weights in self._all_weights]
+
+#     def forward(self, input, hx=None):
+#         max_batch_size = input.size(0) if self.batch_first else input.size(1)
+
+#         if not hx:
+#             hx = input.new_zeros(self.num_layers * self.num_directions, max_batch_size, self.hidden_size, requires_grad=False)
+#             hx = (hx, hx)
+
+#         quant_input = self._input_quantizer(input)
+#         quant_weight = self._weight_quantizer(self.weight)
+
+#         i_scale = self._input_quantizer.scale
+#         w_scale = self._weight_quantizer.scale(self.weight)
+
+#         scale = i_scale * w_scale
+#         bias = self.bias * scale
+
+#         output, hidden = P.LSTM(
+#             input, self.all_weights, hx, batch_sizes,
+#             self._input_quantizer, self.quantizer
+#         )
+#         return output, hidden
+
+
 def hasanyattr(module, name_list):
     for name in name_list:
         if hasattr(module, name):
@@ -123,7 +216,6 @@ def pushdown_quantizer(module, attr = '_output_quantizer'):
         pushdown_quantizer(last, attr)
 
     return
-
 
 def propagate_quantizer(
     module,
