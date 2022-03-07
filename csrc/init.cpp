@@ -9,8 +9,11 @@
 
 TORCH_LIBRARY(intel_mlperf, m) {
   m.def(
-    "lstm(Tensor input, Tensor ? hx, Tensor ? cx, Tensor w_ih, Tensor w_hh, Tensor ? bias_ih, Tensor ? bias_hh, int hidden_size, int num_layers, int num_directions, Scalar ? scalar) -> Tensor[]",
+    "lstm(Tensor input, Tensor hx, Tensor cx, Tensor[] weight, Scalar[] ? scalar) -> Tensor[]",
     intel_mlperf::lstm);
+  m.def(
+    "lstm_layer(Tensor input, Tensor ? hx, Tensor ? cx, Tensor w_ih, Tensor w_hh, Tensor ? bias_ih, Tensor ? bias_hh, Scalar ? scalar) -> Tensor[]",
+    intel_mlperf::lstm_layer);
   m.def(
     "linear(Tensor input, Tensor weight, Tensor ? bias, Scalar ? scale, Scalar ? zero) -> Tensor",
     intel_mlperf::linear);
