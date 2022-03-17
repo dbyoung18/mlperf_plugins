@@ -3,14 +3,14 @@
 
 namespace intel_mlperf {
 
-std::vector<at::Tensor> lstm(
+std::vector<at::Tensor> fused_lstm(
     const at::Tensor& input,
-    const at::Tensor& hx,
-    const at::Tensor& cx,
+    const c10::optional<at::Tensor>& hx,
+    const c10::optional<at::Tensor>& cx,
     const std::vector<at::Tensor> weights,
     const c10::optional<std::vector<at::Scalar>>& scales);
 
-std::vector<at::Tensor> lstm_layer(
+std::vector<at::Tensor> lstm(
     const at::Tensor& input,
     const c10::optional<at::Tensor>& hx,
     const c10::optional<at::Tensor>& cx,

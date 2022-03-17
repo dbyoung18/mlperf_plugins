@@ -185,35 +185,37 @@ std::tuple<at::Tensor, at::Tensor> prepack_lstm_weights (
   return std::make_tuple(prepacked_w_ih, prepacked_w_hh);
 }
 
-std::vector<at::Tensor> lstm(
+std::vector<at::Tensor> fused_lstm(
     const at::Tensor& input,
-    const at::Tensor& hx,
-    const at::Tensor& cx,
+    const c10::optional<at::Tensor>& hx,
+    const c10::optional<at::Tensor>& cx,
     const std::vector<at::Tensor> weights,
     const c10::optional<std::vector<at::Scalar>>& scales) {
 
-    int64_t num_gates = 4;
-    int64_t num_layers = weights.size() / num_gates;
-    auto layer_input = input;
-    std::vector<at::Tensor> layer_hy(num_layers);
-    std::vector<at::Tensor> layer_cy(num_layers);
+  int64_t num_gates = 4;
+  int64_t num_layers = weights.size() / num_gates;
+  auto layer_input = input;
+  std::vector<at::Tensor> layer_hy(num_layers);
+  std::vector<at::Tensor> layer_cy(num_layers);
 
-    for (int64_t layer = 0; layer < num_layers; layer++) {
-	auto layer_output = lstm_layer(layer_input, hx[layer], cx[layer],
-	    weights[layer*num_gates], weights[layer*num_gates+1],
-	    weights[layer*num_gates+2], weights[layer*num_gates+3], scales.value()[layer]);
-	layer_input = layer_output[0];
-	layer_hy[layer] = layer_output[1];
-	layer_cy[layer] = layer_output[2];
-    }
+  for (int64_t layer = 0; layer < num_layers; layer++) {
+    auto layer_hx = hx ? hx.value()[layer] : hx;
+    auto layer_cx = cx ? cx.value()[layer] : cx;
+    auto layer_output = lstm(layer_input, layer_hx, layer_cx,
+        weights[layer*num_gates], weights[layer*num_gates+1],
+        weights[layer*num_gates+2], weights[layer*num_gates+3], scales.value()[layer]);
+    layer_input = layer_output[0];
+    layer_hy[layer] = layer_output[1];
+    layer_cy[layer] = layer_output[2];
+  }
 
-    auto output = layer_input;
-    auto hy = at::stack(layer_hy, 0);
-    auto cy = at::stack(layer_cy, 0);
-    return {output, hy, cy};
+  auto output = layer_input;
+  auto hy = at::cat(layer_hy, 0);
+  auto cy = at::cat(layer_cy, 0);
+  return {output, hy, cy};
 }
 
-std::vector<at::Tensor> lstm_layer(
+std::vector<at::Tensor> lstm(
     const at::Tensor& input,
     const c10::optional<at::Tensor>& hx,
     const c10::optional<at::Tensor>& cx,
@@ -223,7 +225,7 @@ std::vector<at::Tensor> lstm_layer(
     const c10::optional<at::Tensor>& bias_hh,
     const c10::optional<at::Scalar>& scale) {
 
-  LSTMParams lstm(input.size(0), input.size(1), input.size(2), w_ih.size(4));
+  LSTMParams lstm(input.size(0), input.size(1), input.size(2), w_hh.size(1));
   
   auto input_dt = cast(input.scalar_type());
 

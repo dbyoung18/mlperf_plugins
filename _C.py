@@ -9,8 +9,8 @@ if sys.platform == 'darwin':
 elif sys.platform == 'linux':
     torch.ops.load_library(script_dir + "/build/libmlperf_plugins.so")
 
+fused_lstm = torch.ops.intel_mlperf.fused_lstm
 lstm = torch.ops.intel_mlperf.lstm
-lstm_layer = torch.ops.intel_mlperf.lstm_layer
 linear = torch.ops.intel_mlperf.linear
 linear_gelu = torch.ops.intel_mlperf.linear_gelu
 baddbmm_out_ = torch.ops.intel_mlperf.baddbmm_out_

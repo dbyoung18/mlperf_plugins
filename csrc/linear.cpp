@@ -285,7 +285,7 @@ at::Tensor linear(
     /* TODO: adjust weight md according to input */
     auto weight_md = md_from(weight);
     auto bias_md = bias ? md_from(bias.value()) : memory::desc();
-    memory::desc dst_md(_dst_sz, scale ? dt::s8 : dt::s32, tag::ab);
+    memory::desc dst_md(_dst_sz, scale ? dt::s8 : dt::f32, tag::ab);
 
     // Singnaling skip compensation in BRGEMM
     prop_kind prop = zero ? prop_kind::forward_training
@@ -317,8 +317,8 @@ at::Tensor linear(
   auto m_weight = memory(*compute_ext.weights_desc(), g_cpu(), weight.data_ptr());
 
   // Use runtime output scale
-  float _scale = scale.value_or(at::Scalar(1.f)).toFloat();
-  memory m_oscale({{1}, dt::f32, {1}}, g_cpu(), &_scale);
+  //float _scale = scale.value_or(at::Scalar(1.f)).toFloat();
+  //memory m_oscale({{1}, dt::f32, {1}}, g_cpu(), &_scale);
 
   memory::dims dst_sz;
   dst_sz.reserve(input.dim());
@@ -328,7 +328,7 @@ at::Tensor linear(
   auto output = at::empty(
       dst_sz,
       at::TensorOptions()
-        .dtype(cast(scale ? dt::s8 : dt::s32))
+        .dtype(cast(scale ? dt::s8 : dt::f32))
         .memory_format(c10::MemoryFormat::Contiguous)
   );
 
@@ -350,7 +350,7 @@ at::Tensor linear(
       {DNNL_ARG_WEIGHTS, m_weight},
       {DNNL_ARG_BIAS, m_bias},
       {DNNL_ARG_DST, m_dst},
-      {DNNL_ARG_ATTR_OUTPUT_SCALES, m_oscale},
+      //{DNNL_ARG_ATTR_OUTPUT_SCALES, m_oscale},
       {DNNL_ARG_SCRATCHPAD, m_scratch}
     });
   } else {
@@ -358,7 +358,7 @@ at::Tensor linear(
       {DNNL_ARG_SRC, m_input},
       {DNNL_ARG_WEIGHTS, m_weight},
       {DNNL_ARG_DST, m_dst},
-      {DNNL_ARG_ATTR_OUTPUT_SCALES, m_oscale},
+      //{DNNL_ARG_ATTR_OUTPUT_SCALES, m_oscale},
       {DNNL_ARG_SCRATCHPAD, m_scratch}
     });
   }
