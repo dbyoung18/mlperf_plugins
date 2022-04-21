@@ -8,7 +8,7 @@ std::vector<at::Tensor> fused_lstm(
     const c10::optional<at::Tensor>& hx,
     const c10::optional<at::Tensor>& cx,
     const std::vector<at::Tensor> weights,
-    const c10::optional<std::vector<at::Scalar>>& scales);
+    const c10::optional<std::vector<at::Tensor>>& scales);
 
 std::vector<at::Tensor> lstm(
     const at::Tensor& input,
@@ -18,6 +18,6 @@ std::vector<at::Tensor> lstm(
     const at::Tensor& w_hh,
     const c10::optional<at::Tensor>& bias_ih,
     const c10::optional<at::Tensor>& bias_hh,
-    const c10::optional<at::Scalar>& scale);
+    const c10::optional<at::Tensor>& scale);
 
 }

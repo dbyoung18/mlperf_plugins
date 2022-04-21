@@ -96,7 +96,7 @@ std::tuple<at::Tensor, at::Tensor> prepack_lstm_weights (
     const at::Tensor& w_ih,
     const at::Tensor& w_hh,
     const at::Tensor& bias,
-    const c10::optional<at::Scalar>& scale,
+    const c10::optional<at::Tensor>& scale,
     LSTMParams lstm) {
   if (match_prepacked_lstm_weights(w_ih.sizes()) != tag::undef
     && match_prepacked_lstm_weights(w_hh.sizes()) != tag::undef)
@@ -190,7 +190,7 @@ std::vector<at::Tensor> fused_lstm(
     const c10::optional<at::Tensor>& hx,
     const c10::optional<at::Tensor>& cx,
     const std::vector<at::Tensor> weights,
-    const c10::optional<std::vector<at::Scalar>>& scales) {
+    const c10::optional<std::vector<at::Tensor>>& scales) {
 
   int64_t num_gates = 4;
   int64_t num_layers = weights.size() / num_gates;
@@ -223,7 +223,7 @@ std::vector<at::Tensor> lstm(
     const at::Tensor& w_hh,
     const c10::optional<at::Tensor>& bias_ih,
     const c10::optional<at::Tensor>& bias_hh,
-    const c10::optional<at::Scalar>& scale) {
+    const c10::optional<at::Tensor>& scale) {
 
   LSTMParams lstm(input.size(0), input.size(1), input.size(2), w_hh.size(1));
   
