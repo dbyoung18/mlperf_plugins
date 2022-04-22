@@ -317,8 +317,8 @@ at::Tensor linear(
   auto m_weight = memory(*compute_ext.weights_desc(), g_cpu(), weight.data_ptr());
 
   // Use runtime output scale
-  //float _scale = scale.value_or(at::Scalar(1.f)).toFloat();
-  //memory m_oscale({{1}, dt::f32, {1}}, g_cpu(), &_scale);
+  float _scale = scale.value_or(at::Scalar(1.f)).toFloat();
+  memory m_oscale({{1}, dt::f32, {1}}, g_cpu(), &_scale);
 
   memory::dims dst_sz;
   dst_sz.reserve(input.dim());
@@ -350,7 +350,7 @@ at::Tensor linear(
       {DNNL_ARG_WEIGHTS, m_weight},
       {DNNL_ARG_BIAS, m_bias},
       {DNNL_ARG_DST, m_dst},
-      //{DNNL_ARG_ATTR_OUTPUT_SCALES, m_oscale},
+      {DNNL_ARG_ATTR_OUTPUT_SCALES, m_oscale},
       {DNNL_ARG_SCRATCHPAD, m_scratch}
     });
   } else {
@@ -358,7 +358,7 @@ at::Tensor linear(
       {DNNL_ARG_SRC, m_input},
       {DNNL_ARG_WEIGHTS, m_weight},
       {DNNL_ARG_DST, m_dst},
-      //{DNNL_ARG_ATTR_OUTPUT_SCALES, m_oscale},
+      {DNNL_ARG_ATTR_OUTPUT_SCALES, m_oscale},
       {DNNL_ARG_SCRATCHPAD, m_scratch}
     });
   }
