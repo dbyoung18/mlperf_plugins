@@ -154,7 +154,9 @@ std::vector<at::Tensor> prepack_lstm_weights (
   // Create primitive descriptor
   lstm_forward::primitive_desc lstm_pd;
   if (data_scale) {
-    auto weights_scales = compute_lstm_weights_scales(w_ih, w_hh);
+    auto weights_scales = compute_lstm_weights_scales(w_ih, w_hh); 
+    //std::vector<float> weights_scales(w_ih.size(0));
+    //std::fill(weights_scales.begin(), weights_scales.begin() + weights_scales.size(), 30.0f);
     const int weights_mask = 0
 	    + (1 << 3)  // bit, indicating `g` dim in `ldigo`
 	    + (1 << 4);  // bit, indicating `o` dim in `ldigo`
