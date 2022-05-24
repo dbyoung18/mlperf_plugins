@@ -1,3 +1,0 @@
-[submodule "onednn"]
-  path = onednn
-  url = https://github.com/dbyoung18/libraries.performance.math.onednn.git
