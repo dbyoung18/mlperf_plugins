@@ -67,6 +67,9 @@ TORCH_LIBRARY(intel_mlperf, m) {
   m.def(
       "i_layernorm(Tensor input, Tensor weight, Tensor bias, Scalar oscale, Scalar ? eps, Scalar ? o_off) -> Tensor",
       intel_mlperf::i_layernorm);
+  m.def(
+      "tanh(Tensor input) -> Tensor",
+      intel_mlperf::tanh);
 }
 
 namespace intel_mlperf {

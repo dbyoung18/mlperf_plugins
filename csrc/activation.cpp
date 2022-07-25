@@ -1,9 +1,36 @@
 #include <ATen/Functions.h>
 #include <c10/core/MemoryFormat.h>
 
+#include "tanh_tpp.hpp"
 #include "i_gelu_tpp.hpp"
 
 namespace intel_mlperf {
+
+at::Tensor tanh(const at::Tensor& input){
+  auto sizes = input.sizes();
+  
+  auto batch = sizes[0] * sizes[1];
+  auto line  = sizes[2];
+
+  auto output = at::empty(sizes,
+    at::TensorOptions().dtype<float>()
+    .memory_format(c10::MemoryFormat::Contiguous));
+
+  auto *in = input.data_ptr();
+  auto *out = output.data_ptr();
+
+  # pragma omp parallel for
+  for (auto b = 0; b < batch; ++b) {
+    // Move out will cause Apple Clang crash
+    auto pin = reinterpret_cast<_Float16 (*)[line]>(in);
+    auto pout = reinterpret_cast<float (*)[line]>(out);
+
+    tanh_tpp<32>::ref(pout[b], pin[b],line);
+  }
+
+  return output;
+}
+
 at::Tensor i_gelu (
     const at::Tensor& input,
     const at::Scalar& M,

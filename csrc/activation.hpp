@@ -2,6 +2,8 @@
 #include <torch/torch.h>
 
 namespace intel_mlperf {
+at::Tensor tanh ( 
+    const at::Tensor& input);
 
 at::Tensor i_gelu (
     const at::Tensor& input,
