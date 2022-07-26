@@ -29,3 +29,6 @@ amx_mha = torch.ops.intel_mlperf.amx_mha
 amx_mha_concat = torch.ops.intel_mlperf.amx_mha_concat
 amx_linear = torch.ops.intel_mlperf.amx_linear
 tanh = torch.ops.intel_mlperf.tanh
+nc_tanh = torch.ops.intel_mlperf.nc_tanh
+sigmoid = torch.ops.intel_mlperf.sigmoid
+nc_sigmoid = torch.ops.intel_mlperf.nc_sigmoid

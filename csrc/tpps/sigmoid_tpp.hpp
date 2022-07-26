@@ -5,28 +5,33 @@
 #include <c10/core/ScalarType.h>
 
 namespace intel_mlperf {
-template<int vec_length> class tanh_tpp{
+    template<int vec_length> class sigmoid_tpp{
         public:
         static void ref(void *out, void *in, int64_t line);
     };
 
-    template <int vec_l, int N> struct tanh_fp16{
+    template <int vec_l, int N> struct sigmoid_fp16{
   inline static void run(at::Half *out, float *in);
 };
 
 template <int N>
-struct tanh_fp16<32,N>{
+struct sigmoid_fp16<32,N>{
   static constexpr int64_t batch = 32 * N;
 
   inline static void run(at::Half *out, float *in){ 
 #pragma unroll(N)
     for(int i=0,j=0;i< N;++i,j=j+2){
-      // auto x = _mm512_loadu_ph(&in[i*32]);
+      // in:fp32 out:fp16
       auto x_1 = _mm512_loadu_ps(&in[j*16]);
       auto x_2 = _mm512_loadu_ps(&in[(j+1)*16]);
       auto x   = _mm512_concat_cvteps_ph(x_1,x_2);
-      auto o = _mm512_tanh_ph(x);
+      auto o = _mm512_sigmoid_ph(x);
       _mm512_store_ph(&out[i*32],o);
+      
+      // in:fp16 out:fp32
+      // auto x = _mm512_loadu_ph(&in[i*32]);
+      // auto o = helper::_mm512_sigmoid_ph(x);
+      // _mm512_store_ph(&out[i*32],o);
       // auto z = _mm512_castph_ps(o);
       // auto y_1 = _mm512_extractf32x8_ps(z,0);
       // auto y_2 = _mm512_extractf32x8_ps(z,1);
@@ -39,16 +44,16 @@ struct tanh_fp16<32,N>{
 };
 
 template <int vec_length>
-void tanh_tpp<vec_length>::ref(void *out, void *in, int64_t nelem) {
+void sigmoid_tpp<vec_length>::ref(void *out, void *in, int64_t nelem) {
 
-  auto constexpr b = tanh_fp16<vec_length, 32>::batch;
+  auto constexpr b = sigmoid_fp16<vec_length, 32>::batch;
   auto n_batch = nelem / b;
 
   auto pin = reinterpret_cast<float *>(in);
   auto pout = reinterpret_cast<at::Half *>(out);
 
   for (int p = 0; p < n_batch; ++p, pout += b, pin += b) {
-    tanh_fp16<vec_length,32>::run(pout,pin);
+    sigmoid_fp16<vec_length,32>::run(pout,pin);
   }
 }
 }

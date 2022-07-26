@@ -70,6 +70,15 @@ TORCH_LIBRARY(intel_mlperf, m) {
   m.def(
       "tanh(Tensor input) -> Tensor",
       intel_mlperf::tanh);
+  m.def(
+      "nc_tanh(Tensor input) -> Tensor",
+      intel_mlperf::nc_tanh);
+  m.def(
+      "sigmoid(Tensor input) -> Tensor",
+      intel_mlperf::sigmoid);
+  m.def(
+      "nc_sigmoid(Tensor input) -> Tensor",
+      intel_mlperf::nc_sigmoid);
 }
 
 namespace intel_mlperf {
