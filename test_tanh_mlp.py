@@ -9,8 +9,8 @@ import _C as P
 x = torch.randn(128,4096)
 x_1,x_2,x_3,x_4 = x.chunk(4,1)
 
-y = torch.sigmoid(x_1)
-y_a16 = P.nc_sigmoid(x_1)
+y = torch.tanh(x_2)
+y_a16 = P.tanh(x_2,1024,0)
 y_diff = abs(y-y_a16)
 print(y_diff.max())
 

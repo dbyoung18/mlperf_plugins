@@ -7,13 +7,17 @@
 
 namespace intel_mlperf {
 
-at::Tensor sigmoid(const at::Tensor& input){
+at::Tensor sigmoid(const at::Tensor& input, const at::Scalar& oc, const at::Scalar& offset=0){
   auto sizes = input.sizes();
   
   auto batch = sizes[0];
-  auto line  = sizes[1];
+  auto i_line  = sizes[1];
 
-  auto output = at::empty(sizes,
+  auto line = oc.toInt();
+  auto os = offset.toInt();
+  std::vector<int64_t> sizes_{batch,line};
+
+  auto output = at::empty(sizes_,
     at::TensorOptions().dtype<at::Half>()
     .memory_format(c10::MemoryFormat::Contiguous));
 
@@ -25,8 +29,10 @@ at::Tensor sigmoid(const at::Tensor& input){
     // Move out will cause Apple Clang crash
     auto pin = reinterpret_cast<float (*)[line]>(in);
     auto pout = reinterpret_cast<at::Half (*)[line]>(out);
-
-    sigmoid_tpp<32>::ref(pout[b], pin[b],line);
+    if(i_line==line)
+      sigmoid_tpp<32>::ref(pout[b], pin[os+b],line);
+    else
+      sigmoid_tpp<32>::ref(pout[b], pin[os+4*b],line);
   }
 
   return output;
@@ -57,13 +63,17 @@ at::Tensor nc_sigmoid(const at::Tensor& input){
   return output;
 }
 
-at::Tensor tanh(const at::Tensor& input){
+at::Tensor tanh(const at::Tensor& input, const at::Scalar& oc, const at::Scalar& offset=0){
   auto sizes = input.sizes();
   
   auto batch = sizes[0];
-  auto line  = sizes[1];
+  auto i_line  = sizes[1];
 
-  auto output = at::empty(sizes,
+  auto line = oc.toInt();
+  auto os = offset.toInt();
+  std::vector<int64_t> sizes_{batch,line};
+
+  auto output = at::empty(sizes_,
     at::TensorOptions().dtype<at::Half>()
     .memory_format(c10::MemoryFormat::Contiguous));
 
@@ -75,8 +85,10 @@ at::Tensor tanh(const at::Tensor& input){
     // Move out will cause Apple Clang crash
     auto pin = reinterpret_cast<float (*)[line]>(in);
     auto pout = reinterpret_cast<at::Half (*)[line]>(out);
-
-    tanh_tpp<32>::ref(pout[b], pin[b],line);
+    if(i_line==line)
+      tanh_tpp<32>::ref(pout[b], pin[os+b],line);
+    else
+      tanh_tpp<32>::ref(pout[b], pin[os+4*b],line);
   }
 
   return output;
