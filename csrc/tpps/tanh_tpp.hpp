@@ -27,13 +27,6 @@ struct tanh_fp16<32,N>{
       auto x   = _mm512_concat_cvteps_ph(x_1,x_2);
       auto o = _mm512_tanh_ph(x);
       _mm512_store_ph(&out[i*32],o);
-      // auto z = _mm512_castph_ps(o);
-      // auto y_1 = _mm512_extractf32x8_ps(z,0);
-      // auto y_2 = _mm512_extractf32x8_ps(z,1);
-      // auto o_1 = _mm512_cvtxph_ps(_mm256_castps_ph(y_1));
-      // auto o_2 = _mm512_cvtxph_ps(_mm256_castps_ph(y_2));
-      // _mm512_store_ps(&out[j*16],o_1);
-      // _mm512_store_ps(&out[(j+1)*16],o_2);
     }
   }
 };

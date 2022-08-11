@@ -68,17 +68,11 @@ TORCH_LIBRARY(intel_mlperf, m) {
       "i_layernorm(Tensor input, Tensor weight, Tensor bias, Scalar oscale, Scalar ? eps, Scalar ? o_off) -> Tensor",
       intel_mlperf::i_layernorm);
   m.def(
-      "tanh(Tensor _0, Scalar _1, Scalar _2) -> Tensor",
+      "tanh(Tensor _0) -> Tensor",
       intel_mlperf::tanh);
   m.def(
-      "nc_tanh(Tensor input) -> Tensor",
-      intel_mlperf::nc_tanh);
-  m.def(
-      "sigmoid(Tensor _0, Scalar _1, Scalar _2) -> Tensor",
+      "sigmoid(Tensor _0) -> Tensor",
       intel_mlperf::sigmoid);
-  m.def(
-      "nc_sigmoid(Tensor input) -> Tensor",
-      intel_mlperf::nc_sigmoid);
 }
 
 namespace intel_mlperf {

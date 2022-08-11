@@ -2,21 +2,11 @@
 #include <torch/torch.h>
 
 namespace intel_mlperf {
-at::Tensor nc_sigmoid (
-    const at::Tensor& input);
-
 at::Tensor sigmoid (
-    const at::Tensor& input,
-    const at::Scalar& oc,
-    const at::Scalar& offset=0);
-
-at::Tensor nc_tanh (
     const at::Tensor& input);
 
 at::Tensor tanh (
-    const at::Tensor& input,
-    const at::Scalar& oc,
-    const at::Scalar& offset=0);
+    const at::Tensor& input);
 
 at::Tensor i_gelu (
     const at::Tensor& input,
