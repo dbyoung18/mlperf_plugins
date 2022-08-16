@@ -6,22 +6,21 @@
 
 namespace intel_mlperf {
 template<int vec_length> class tanh_tpp{
-        public:
-        static void ref(void *out, void *in, int64_t line);
-    };
+public:
+    static void ref(void *out, void *in, int64_t line);
+};
 
-    template <int vec_l, int N> struct tanh_fp16{
-  inline static void run(at::Half *out, float *in);
+template <int vec_l, int N> struct tanh_fp16{
+    inline static void run(_Float16 *out, float *in);
 };
 
 template <int N>
 struct tanh_fp16<32,N>{
   static constexpr int64_t batch = 32 * N;
 
-  inline static void run(at::Half *out, float *in){ 
+  inline static void run(_Float16 *out, float *in){ 
 #pragma unroll(N)
     for(int i=0,j=0;i< N;++i,j=j+2){
-      // auto x = _mm512_loadu_ph(&in[i*32]);
       auto x_1 = _mm512_loadu_ps(&in[j*16]);
       auto x_2 = _mm512_loadu_ps(&in[(j+1)*16]);
       auto x   = _mm512_concat_cvteps_ph(x_1,x_2);
@@ -31,17 +30,4 @@ struct tanh_fp16<32,N>{
   }
 };
 
-template <int vec_length>
-void tanh_tpp<vec_length>::ref(void *out, void *in, int64_t nelem) {
-
-  auto constexpr b = tanh_fp16<vec_length, 32>::batch;
-  auto n_batch = nelem / b;
-
-  auto pin = reinterpret_cast<float *>(in);
-  auto pout = reinterpret_cast<at::Half *>(out);
-
-  for (int p = 0; p < n_batch; ++p, pout += b, pin += b) {
-    tanh_fp16<vec_length,32>::run(pout,pin);
-  }
-}
 }
