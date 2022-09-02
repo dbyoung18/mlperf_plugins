@@ -73,6 +73,9 @@ TORCH_LIBRARY(intel_mlperf, m) {
   m.def(
       "sigmoid(Tensor _0) -> Tensor",
       intel_mlperf::sigmoid);
+  m.def(
+      "tanh_f16(Tensor _0) -> Tensor",
+      intel_mlperf::tanh_f16);
 }
 
 namespace intel_mlperf {

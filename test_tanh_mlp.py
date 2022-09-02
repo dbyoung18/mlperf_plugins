@@ -8,10 +8,15 @@ import time
 
 x = torch.load("/localdisk/yejinglai/work/rnnt/gt_fp32.pt")
 
+x_16 = x.to(torch.float16)
 start = time.perf_counter()
 for i in range(1000):   
-    y_a16 = P.tanh(x)
+    y_a16 = P.tanh_f16(x_16)
 end = time.perf_counter()
+y = torch.tanh(x)
+y_diff = abs(y-y_a16)
+print(y_a16)
+print(y_diff.max())
 print('time cost:%s ms' % ((end - start)*1000))
 
 # y = torch.tanh(x_1)

@@ -8,6 +8,9 @@ at::Tensor sigmoid (
 at::Tensor tanh (
     const at::Tensor& input);
 
+at::Tensor tanh_f16 (
+    const at::Tensor& input);
+
 at::Tensor i_gelu (
     const at::Tensor& input,
     const at::Scalar& M,

@@ -30,3 +30,4 @@ amx_mha_concat = torch.ops.intel_mlperf.amx_mha_concat
 amx_linear = torch.ops.intel_mlperf.amx_linear
 tanh = torch.ops.intel_mlperf.tanh
 sigmoid = torch.ops.intel_mlperf.sigmoid
+tanh_f16 = torch.ops.intel_mlperf.tanh_f16
