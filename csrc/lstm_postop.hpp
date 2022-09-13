@@ -7,6 +7,10 @@ namespace intel_mlperf {
         const at::Tensor& it,
         const at::Tensor& ft,
         const at::Tensor& gt,
-        const at::Tensor& ot
+        const at::Tensor& ot,
+        const at::Tensor& ct_1,
+        const c10::optional<at::Scalar>& input_scale,
+        const c10::optional<at::Scalar>& output_scale,
+        const bool& last_layer_flag
     );
 }

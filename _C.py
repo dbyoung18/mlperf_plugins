@@ -31,3 +31,4 @@ amx_linear = torch.ops.intel_mlperf.amx_linear
 tanh = torch.ops.intel_mlperf.tanh
 sigmoid = torch.ops.intel_mlperf.sigmoid
 tanh_f16 = torch.ops.intel_mlperf.tanh_f16
+lstm_postop = torch.ops.intel_mlperf.lstm_postop

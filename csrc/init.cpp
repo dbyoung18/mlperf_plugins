@@ -8,6 +8,7 @@
 #include "softmax.hpp"
 #include "activation.hpp"
 #include "normalization.hpp"
+#include "lstm_postop.hpp"
 
 TORCH_LIBRARY(intel_mlperf, m) {
   m.def(
@@ -76,6 +77,9 @@ TORCH_LIBRARY(intel_mlperf, m) {
   m.def(
       "tanh_f16(Tensor _0) -> Tensor",
       intel_mlperf::tanh_f16);
+  m.def(
+      "lstm_postop(Tensor _0, Tensor _1, Tensor _2, Tensor _3, Tensor _4, Scalar? _5, Scalar? _6, bool _7) -> Tensor[]",
+      intel_mlperf::lstm_postop);
 }
 
 namespace intel_mlperf {

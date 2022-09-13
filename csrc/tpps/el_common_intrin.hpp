@@ -211,6 +211,16 @@ static inline __m512i _mm512_scale_minmax_i8_ph(__m512h x, __m512h vS) {
   return _mm512_cvtph_epi16(c2);
 }
 
+static inline __m512i _mm512_scale_min128max_i8_ph(__m512h x, __m512h vS) {
+  auto max = _mm512_set1_ph(127.f);
+  auto min = _mm512_set1_ph(-128.f);
+
+  auto m = _mm512_roundscale_ph(x * vS, _MM_FROUND_TO_NEAREST_INT);
+  auto c1 = _mm512_min_ph(m, max);
+  auto c2 = _mm512_max_ph(c1, min);
+  return _mm512_cvtph_epi16(c2);
+}
+
 static inline void _mm512_mask_cvtepi32_storeu_epi8_compensate(void *base_addr,
                                                                __mmask16 k,
                                                                __m512i x,
