@@ -34,7 +34,6 @@ void lstm_postop_tpp::ref(void *out_yt, void *out_yt_q, void *out_ht_q, void *ou
         auto c = _mm512_loadu_ph((&pin_ct[j*32]));
         auto a = _mm512_mul_ph(f, c);
         auto o = _mm512_fmadd_ph(i, g, a);
-        // _mm512_store_ph(&ct_out[j*32],o);
         _mm512_store_ph(&pout_ct[j*32],o);
     }
 
@@ -45,19 +44,25 @@ void lstm_postop_tpp::ref(void *out_yt, void *out_yt_q, void *out_ht_q, void *ou
     //     auto pout_yt = reinterpret_cast<_Float16 *>(out_yt);
     // else
     //     pout_yt = reinterpret_cast<int8_t *>(out_yt);
-    auto pout_yt = reinterpret_cast<_Float16 *>(out_yt);
+    auto pout_yt = reinterpret_cast<float *>(out_yt);
 
     alignas(64) _Float16 ht_out[line];
     alignas(64) _Float16 ct_tanh[line];
     tanh_tpp<32>::ref_(ct_tanh,pout_ct,line);
     #pragma unroll(32)
-    for(int j=0;j<n_batch;j++){
+    for(int j=0,z=0;j<n_batch;j++,z=z+2){
         auto a = _mm512_loadu_ph(&ot_out[j*32]);
         auto b = _mm512_loadu_ph(&ct_tanh[j*32]);
         auto o_ht = _mm512_mul_ph(a,b);
         _mm512_store_ph(&ht_out[j*32],o_ht);
         if(last_layer_flag){
-            _mm512_store_ph(&pout_yt[j*32],o_ht);
+            // ht:fp16->fp32
+            auto y_1 = _mm512_extractf32x8_ps(o_ht,0);
+            auto y_2 = _mm512_extractf32x8_ps(o_ht,1);
+            auto o_1 = _mm512_cvtxph_ps(_mm256_castps_ph(y_1));
+            auto o_2 = _mm512_cvtxph_ps(_mm256_castps_ph(y_2));
+            _mm512_store_ps(&pout_yt[z*16],o_1);
+            _mm512_store_ps(&pout_yt[(z+1)*16],o_2);
         }
     }
 

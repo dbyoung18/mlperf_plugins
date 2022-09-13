@@ -30,7 +30,7 @@ std::vector<at::Tensor> lstm_postop (
     auto out_scale = output_scale->toFloat();
 
     auto output_1 = at::empty(sizes,
-    at::TensorOptions().dtype<at::Half>()
+    at::TensorOptions().dtype<float>()
     .memory_format(c10::MemoryFormat::Contiguous));
 
     auto output_1_q = at::empty(sizes,
@@ -68,7 +68,7 @@ std::vector<at::Tensor> lstm_postop (
       // if(last_layer_flag)
       //   auto pout_1 = reinterpret_cast<at::Half (*)[line]>(out_1);
       // else
-      auto pout_1 = reinterpret_cast<_Float16 (*)[line]>(out_1);
+      auto pout_1 = reinterpret_cast<float (*)[line]>(out_1);
       auto pout_1_q = reinterpret_cast<int8_t (*)[line]>(out_1_q);
       auto pout_2 = reinterpret_cast<int8_t (*)[line]>(out_2);
       auto pout_3 = reinterpret_cast<at::Half (*)[line]>(out_3);
